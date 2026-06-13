@@ -72,13 +72,15 @@ class TCPTracker:
             if hasattr(packet, "ip"):
                 current_src = packet.ip.src
                 current_dst = packet.ip.dst
-            else:
+            elif hasattr(packet, "ipv6"):
                 current_src = packet.ipv6.src
                 current_dst = packet.ipv6.dst
+            else:
+                current_src = "Sconosciuto"
+                current_dst = "Sconosciuto"
                 
             print(f"  |-> [PKT {self.sessions[session_key]['packet_count']}] {current_src} -> {current_dst} | Seq: {seq_num}")
-            print(f" |-> [PKT {self.sessions[session_key]}] {packet.ip.src} -> {packet.ip.dst} | Seq: {seq_num}")
-            
+         
             if is_fin or is_rst:
                 self.sessions[session_key]["end_time"] = timestamp
                 self.sessions[session_key]["status"] = "CLOSED"
