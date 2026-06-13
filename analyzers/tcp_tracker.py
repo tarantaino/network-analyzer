@@ -37,11 +37,11 @@ class TCPTracker:
 
         timestamp = float(packet.sniff_timestamp)
 
-        # principal binary flags extraction from PyShark
-        is_syn = int(packet.tcp.flags_syn) == 1
-        is_ack = int(packet.tcp.flags_ack) == 1
-        is_fin = int(packet.tcp.flags_fin) == 1
-        is_rst = int(packet.tcp.flags_rst) == 1
+        # flags extraction: converts everything in strings and find the matches
+        is_syn = str(packet.tcp.flags_syn) in ['1', 'True', 'true']
+        is_ack = str(packet.tcp.flags_ack) in ['1', 'True', 'true']
+        is_fin = str(packet.tcp.flags_fin) in ['1', 'True', 'true']
+        is_rst = str(packet.tcp.flags_rst) in ['1', 'True', 'true']
 
         if is_syn and not is_ack:
             if session_key not in self.sessions:
