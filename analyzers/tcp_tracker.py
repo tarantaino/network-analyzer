@@ -1,6 +1,47 @@
+import csv
+
+
+
 class TCPTracker:
     def __init__(self):
         self.sessions = {}
+
+    def exp_csv(self, output_path="tcp_report.csv"):
+        try:
+            with open(output_path, mode="w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+
+                writer.writerow([
+                    "Source IP", "Source Port",
+                    "Dest. IP", "Dest. Port",
+                    "Start_Timestamp", "End_Timestamp",
+                    "Duration_Sec", "Session_Status", "Total_Packets"
+                ])
+
+                for key, data in self.sessions.items():
+                    src_ip, src_port, dst_ip, dst_port = key
+                    start_t = data.get("start_time")
+                    end_t = data.get("end_time")
+                    status = data.get("status")
+                    count = data.get("packet_count")
+
+                    if start_t and end_t:
+                        duration = f"{(end_t - start_t):.4f}"
+                        formatted_end = end_t
+                    else:
+                        duration = "N/A"
+                        formatted_end = "Ongoing"
+                    
+                    writer.writerow([
+                         src_ip, src_port, dst_ip, dst_port,
+                         start_t, formatted_end, duration, status, count
+                    ])
+                
+            print(f"CSV dump completed on: {output_path}")
+        
+        except Exception as e:
+            print(f"Critical error during CSV file I/O: {e}")
+
 
     def _gen_session_key(self, packet):
         # checks for IPv4 and IPv6 
