@@ -1,4 +1,5 @@
 import pyshark
+import asyncio #manage the asynchronicity
 #main and useful library for capturing net packets
 #project will be developed in classes
 
@@ -7,6 +8,13 @@ class Capture:
         self.pcap_path = pcap_path
 
     def pcap_process(self, pack_l = 10): #function that opens the pcap and read the first 10 packets, for test purpose
+        #forcing the Event Loop in order for PyShark to not crash
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop()
+        
         print(f"Analyzing {self.pcap_path}...\n")
 
         try:
