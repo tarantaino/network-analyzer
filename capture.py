@@ -3,6 +3,7 @@ import asyncio #manage the asynchronicity
 #main and useful library for capturing net packets
 #project will be developed in classes
 from analyzers.tcp_tracker import TCPTracker
+import traceback
 
 class Capture:
     def __init__(self, pcap_path): #define a class in which function will be passed the pcap file path
@@ -38,4 +39,5 @@ class Capture:
         except FileNotFoundError:
             print(f"Err: file {self.pcap_path} does not exists.")
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"Unexpected error: {type(e).__name__}")
+            traceback.print_exc()
