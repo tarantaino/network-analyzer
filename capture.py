@@ -36,6 +36,8 @@ class Capture:
             capture.close()
             print("\nBasic analysis completed.")
             print(f"Unique TCP sessions detected: {len(tracker.sessions)}")
+
+            tracker.exp_csv("tcp_report.csv")
         
         except FileNotFoundError:
             print(f"Err: file {self.pcap_path} does not exists.")
