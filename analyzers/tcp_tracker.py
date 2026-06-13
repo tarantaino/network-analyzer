@@ -1,10 +1,9 @@
 class TCPTracker:
     def __init__(self):
-        # Dictionary to store active sessions
         self.sessions = {}
 
     def _gen_session_key(self, packet):
-        # checks if is an IPv4 or IPv6 packet
+        # checks for IPv4 and IPv6 
         if hasattr(packet, "ip"):
             src_ip = packet.ip.src
             dst_ip = packet.ip.dst
@@ -12,56 +11,58 @@ class TCPTracker:
             src_ip = packet.ipv6.src
             dst_ip = packet.ipv6.dst
         else:
-            return None # if not one of them, ignore
+            return None
 
         src_port = packet.tcp.srcport
         dst_port = packet.tcp.dstport
 
-        # sorting tuple to make it bidirectional
+        # bidrectoinal sorting tracking
         if (src_ip, src_port) < (dst_ip, dst_port):
             return (src_ip, src_port, dst_ip, dst_port)
         else:
             return (dst_ip, dst_port, src_ip, src_port)
         
     def track_pack(self, packet):
-        # analyzes packets' TCP flags and updates session's status
-
         if not hasattr(packet, "tcp"):
             return
     
         session_key = self._gen_session_key(packet)
-        
-        # if session_key is None (no valid IP found), stops
         if not session_key:
             return
 
         timestamp = float(packet.sniff_timestamp)
 
-       # secure extraction with getattr()
-        # if flag do not exists in the packet we use '0' as default
+        # secure extraction, managing errors
         raw_syn = getattr(packet.tcp, 'flags_syn', '0')
         raw_ack = getattr(packet.tcp, 'flags_ack', '0')
         raw_fin = getattr(packet.tcp, 'flags_fin', '0')
         raw_rst = getattr(packet.tcp, 'flags_rst', '0')
 
-        # boolean conversion as proof of different version
         is_syn = str(raw_syn) in ['1', 'True', 'true']
         is_ack = str(raw_ack) in ['1', 'True', 'true']
         is_fin = str(raw_fin) in ['1', 'True', 'true']
         is_rst = str(raw_rst) in ['1', 'True', 'true']
 
-        if is_syn and not is_ack:
-            if session_key not in self.sessions:
+        #new logic to accept Mid-Stream conn
+        if session_key not in self.sessions:
+            if is_syn and not is_ack:
                 self.sessions[session_key] = {
                     "start_time" : timestamp,
                     "end_time": None,
                     "status" : "SYN",
                     "packet_count" : 1
                 } 
-                # read IP and port from the new generated key
-                print(f"[TCP-START] New session detected between {session_key[0]}:{session_key[1]} and {session_key[2]}:{session_key[3]}")
+                print(f"[TCP-START] Detected Handshake between {session_key[0]}:{session_key[1]} e {session_key[2]}:{session_key[3]}")
+            else:
+                self.sessions[session_key] = {
+                    "start_time" : timestamp,
+                    "end_time": None,
+                    "status" : "MID-STREAM",
+                    "packet_count" : 1
+                }
+                print(f"[TCP-MID] Mid-Stream traffic detected between {session_key[0]}:{session_key[1]} e {session_key[2]}:{session_key[3]}")
         
-        elif session_key in self.sessions:
+        else:
             self.sessions[session_key]["packet_count"] += 1
             
             if is_fin or is_rst:
@@ -69,4 +70,4 @@ class TCPTracker:
                 self.sessions[session_key]["status"] = "CLOSED"
                 
                 duration = timestamp - self.sessions[session_key]["start_time"]
-                print(f"[TCP-END] Session close. Duration: {duration:.4f} sec. Total packets: {self.sessions[session_key]['packet_count']}")
+                print(f"[TCP-END] Session close. Duration: {duration:.4f} sec. Pacchetti: {self.sessions[session_key]['packet_count']}")
