@@ -64,6 +64,10 @@ class TCPTracker:
         
         else:
             self.sessions[session_key]["packet_count"] += 1
+
+            #print for single packets tracking
+            seq_num = getattr(packet.tcp, "seq", "N/A")
+            print(f" |-> [PKT {self.sessions[session_key]}] {packet.ip.src} -> {packet.ip.dst} | Seq: {seq_num}")
             
             if is_fin or is_rst:
                 self.sessions[session_key]["end_time"] = timestamp
