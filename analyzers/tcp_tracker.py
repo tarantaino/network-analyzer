@@ -68,14 +68,15 @@ class TCPTracker:
             #print for single packets tracking
             seq_num = getattr(packet.tcp, "seq", "N/A")
 
-            #secure extraction for IPv4 and IPv6 and for log lines
+            # secure extraction for IPv4 and IPv6
             if hasattr(packet, "ip"):
                 current_src = packet.ip.src
                 current_dst = packet.ip.dst
             else:
                 current_src = packet.ipv6.src
                 current_dst = packet.ipv6.dst
-
+                
+            print(f"  |-> [PKT {self.sessions[session_key]['packet_count']}] {current_src} -> {current_dst} | Seq: {seq_num}")
             print(f" |-> [PKT {self.sessions[session_key]}] {packet.ip.src} -> {packet.ip.dst} | Seq: {seq_num}")
             
             if is_fin or is_rst:
