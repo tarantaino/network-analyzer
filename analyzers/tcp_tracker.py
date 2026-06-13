@@ -9,7 +9,7 @@ class TCPTracker:
     def exp_csv(self, output_path="tcp_report.csv"):
         try:
             with open(output_path, mode="w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
+                writer = csv.writer(f, delimiter = ";")
 
                 writer.writerow([
                     "Source IP", "Source Port",
