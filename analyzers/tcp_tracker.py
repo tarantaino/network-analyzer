@@ -1,14 +1,19 @@
 class TCPTracker:
     def __init__(self):
         # Dictionary to store active sessions
-        # structure: {unique_tuple: {"start_time": t1, "status": "SYN", ...}}
         self.sessions = {}
 
     def _gen_session_key(self, packet):
-        # generates a sort key for tuples so that A -> B and B -> A flows will be restricted to the same session
+        # checks if is an IPv4 or IPv6 packet
+        if hasattr(packet, "ip"):
+            src_ip = packet.ip.src
+            dst_ip = packet.ip.dst
+        elif hasattr(packet, "ipv6"):
+            src_ip = packet.ipv6.src
+            dst_ip = packet.ipv6.dst
+        else:
+            return None # if not one of them, ignore
 
-        src_ip = packet.ip.src
-        dst_ip = packet.ip.dst
         src_port = packet.tcp.srcport
         dst_port = packet.tcp.dstport
 
@@ -25,11 +30,14 @@ class TCPTracker:
             return
     
         session_key = self._gen_session_key(packet)
-        # timestamp deve usare la notazione con punto, non underscore in PyShark
+        
+        # if session_key is None (no valid IP found), stops
+        if not session_key:
+            return
+
         timestamp = float(packet.sniff_timestamp)
 
         # principal binary flags extraction from PyShark
-        # via packet.tcp.flags_* PyShark consents access to single bits
         is_syn = int(packet.tcp.flags_syn) == 1
         is_ack = int(packet.tcp.flags_ack) == 1
         is_fin = int(packet.tcp.flags_fin) == 1
@@ -43,16 +51,15 @@ class TCPTracker:
                     "status" : "SYN",
                     "packet_count" : 1
                 } 
-                print(f"[TCP-START] New session detected between {packet.ip.src}:{packet.tcp.srcport} and {packet.ip.dst}:{packet.tcp.dstport}")
+                # read IP and port from the new generated key
+                print(f"[TCP-START] New session detected between {session_key[0]}:{session_key[1]} and {session_key[2]}:{session_key[3]}")
         
         elif session_key in self.sessions:
-            # Aggiunto l'incremento obbligatorio per i pacchetti successivi
             self.sessions[session_key]["packet_count"] += 1
             
             if is_fin or is_rst:
                 self.sessions[session_key]["end_time"] = timestamp
                 self.sessions[session_key]["status"] = "CLOSED"
                 
-                # Corretti i typo 'sesssions', '.4f' e la gestione degli apici
                 duration = timestamp - self.sessions[session_key]["start_time"]
                 print(f"[TCP-END] Session close. Duration: {duration:.4f} sec. Total packets: {self.sessions[session_key]['packet_count']}")
