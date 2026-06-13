@@ -21,13 +21,14 @@ class Capture:
 
         tracker = TCPTracker()
         try:
-            capture = pyshark.FileCapture(self.pcap_path, display_filter="tcp") #FileCapture function in pyshark, reads the pcap
+            capture = pyshark.FileCapture(self.pcap_path, keep_packets=False) #FileCapture function in pyshark, reads the pcap
 
             pack_c = 0
             for packet in capture:
                 if pack_c >= pack_l:
                     break
 
+                print(f"[DEBUG] Frame {pack_c}: Principal Protocol -> {packet.highest_layer}")
                 tracker.track_pack(packet)
 
                 pack_c += 1
