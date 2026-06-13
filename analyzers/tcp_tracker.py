@@ -37,11 +37,18 @@ class TCPTracker:
 
         timestamp = float(packet.sniff_timestamp)
 
-        # flags extraction: converts everything in strings and find the matches
-        is_syn = str(packet.tcp.flags_syn) in ['1', 'True', 'true']
-        is_ack = str(packet.tcp.flags_ack) in ['1', 'True', 'true']
-        is_fin = str(packet.tcp.flags_fin) in ['1', 'True', 'true']
-        is_rst = str(packet.tcp.flags_rst) in ['1', 'True', 'true']
+       # secure extraction with getattr()
+        # if flag do not exists in the packet we use '0' as default
+        raw_syn = getattr(packet.tcp, 'flags_syn', '0')
+        raw_ack = getattr(packet.tcp, 'flags_ack', '0')
+        raw_fin = getattr(packet.tcp, 'flags_fin', '0')
+        raw_rst = getattr(packet.tcp, 'flags_rst', '0')
+
+        # boolean conversion as proof of different version
+        is_syn = str(raw_syn) in ['1', 'True', 'true']
+        is_ack = str(raw_ack) in ['1', 'True', 'true']
+        is_fin = str(raw_fin) in ['1', 'True', 'true']
+        is_rst = str(raw_rst) in ['1', 'True', 'true']
 
         if is_syn and not is_ack:
             if session_key not in self.sessions:
