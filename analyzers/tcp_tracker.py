@@ -127,4 +127,4 @@ class TCPTracker:
                 self.sessions[session_key]["status"] = "CLOSED"
                 
                 duration = timestamp - self.sessions[session_key]["start_time"]
-                print(f"[TCP-END] Session close. Duration: {duration:.4f} sec. Pacchetti: {self.sessions[session_key]['packet_count']}")
+                print(f"[TCP-END] Session close. Duration: {duration:.4f} sec. Packets: {self.sessions[session_key]['packet_count']}")
