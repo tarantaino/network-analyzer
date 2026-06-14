@@ -29,7 +29,7 @@ def main():
         start = Capture(interface=args.interface)
 
     # start analysis
-    start.process_traffic(packet_limit=args.limit)
+    start.process_traffic(pack_l=args.limit)
 
 if __name__ == "__main__":
     main()
