@@ -18,9 +18,9 @@ class Capture:
     #function that opens the pcap and read 100 packets
     #forcing the Event Loop in order for PyShark to not crash
     def process_traffic(self, pack_l = 100):
-        loop = asyncio.new_event_loop()
+        loop = asyncio.new_event_loop() #new loop for managing ayncs bug
         asyncio.set_event_loop(loop)
-        
+
         tracker = TCPTracker()
         capture = None
                 
@@ -31,7 +31,7 @@ class Capture:
                 capture = pyshark.FileCapture(self.pcap_path, keep_packets=False) #FileCapture function in pyshark, reads the pcap
             elif self.interface:
                 print(f"Starting LIVE SNIFFING on interface {self.interface}...\n")
-                capture = pyshark.LiveCapture(interface=self.interface) #livecapture bonds with Windows' net card
+                capture = pyshark.LiveCapture(interface=self.interface, eventloop = loop) #livecapture bonds with Windows' net card and new loop injected
             else:
                 print("Errore: no target specified (neither file nor interface).")
                 return
