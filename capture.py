@@ -6,9 +6,6 @@ import traceback #for managing errors
 from analyzers.tcp_tracker import TCPTracker #class imported from the tcp_tracker.py
 import sys
 
-#MANAGING ASYNCHRONOUS WINDOWS PIPELINE
-if sys.platform == "win32":
-    asyncio.set_event_loop_policy(asyncio._WindowsSelectorEventLoopPolicy())
 
 class Capture:
     def __init__(self, pcap_path = None, interface = None): #define a class in which functions will be processed the live sniffing
@@ -54,4 +51,7 @@ class Capture:
             traceback.print_exc()
         finally:
             if capture:
+               try: #morbid closure to not warn Windows GC
                 capture.close()
+               except Exception:
+                   pass
