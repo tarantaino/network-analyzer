@@ -51,7 +51,24 @@ class Capture:
             traceback.print_exc()
         finally:
             if capture:
-               try: #morbid closure to not warn Windows GC
+               try: 
                 capture.close()
+               except Exception:
+                   pass
+               
+               #Since we're using Python 3.14 on Windows, we now force the GC to destroy the objects instantly
+               #while the asynchornous loop is active and configured
+               del capture
+
+               #we give the loop 200 ms to elaborate last signals to close I/O pipelines
+               #sent by TShark/Dumpcap
+               try:
+                   loop.run_until_complete(asyncio.sleep(0.2))
+               except Exception:
+                   pass
+               
+               #now we close the loop without pending tasks
+               try:
+                   loop.close()
                except Exception:
                    pass
