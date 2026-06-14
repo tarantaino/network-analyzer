@@ -6,7 +6,7 @@ import traceback #for managing errors
 from analyzers.tcp_tracker import TCPTracker #class imported from the tcp_tracker.py
 
 class Capture:
-    def __init__(self, pcap_path): #define a class in which function will be passed the pcap file path
+    def __init__(self, pcap_path = None, interface = None): #define a class in which functions will be processed the live sniffing
         self.pcap_path = pcap_path
         self.interface = interface
 
