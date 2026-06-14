@@ -4,6 +4,11 @@ import pyshark
 import asyncio #manage the asynchronicity
 import traceback #for managing errors
 from analyzers.tcp_tracker import TCPTracker #class imported from the tcp_tracker.py
+import sys
+
+#MANAGING ASYNCHRONOUS WINDOWS PIPELINE
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio._WindowsSelectorEventLoopPolicy())
 
 class Capture:
     def __init__(self, pcap_path = None, interface = None): #define a class in which functions will be processed the live sniffing
@@ -13,12 +18,9 @@ class Capture:
     #function that opens the pcap and read 100 packets
     #forcing the Event Loop in order for PyShark to not crash
     def process_traffic(self, pack_l = 100):
-        try:
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
         tracker = TCPTracker()
         capture = None
                 
