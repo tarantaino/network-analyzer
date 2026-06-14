@@ -35,7 +35,7 @@ class Capture:
                 return
 
             pack_c = 0  #same loop as before
-            for packet in capture.sniff_continously(pack_c = pack_l):
+            for packet in capture.sniff_continuously(pack_c = pack_l):
                 tracker.track_pack(packet)
                 pack_c += 1
 
