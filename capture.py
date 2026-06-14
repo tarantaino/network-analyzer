@@ -5,6 +5,7 @@ import asyncio #manage the asynchronicity
 import traceback #for managing errors
 from analyzers.tcp_tracker import TCPTracker #class imported from the tcp_tracker.py
 import sys
+import os
 
 
 class Capture:
@@ -51,28 +52,14 @@ class Capture:
             traceback.print_exc()
         finally:
             if capture:
-               print("\n Killing subprocesses and cleaning memory...")
-               try: 
-                capture.close()
-               except Exception:
-                   pass
-               
-               #we recover all pending asynchronous tasks
-               pending_tasks = asyncio.all_tasks(loop=loop)
-
-               #we explicity kill them
-               for task in pending_tasks:
-                   task.cancel()
+                print("\nGarbage Collector bypass: forcing process closure...")
                 
-               #♫we try runnning the loop again to dispose all of the deleting procedures
-               if pending_tasks:
-                 try:
-                   loop.run_until_complete(asyncio.gather(*pending_tasks, return_exceptions=True))
-                 except Exception:
-                   pass
-               
-               #now we close the loop without pending tasks
-               try:
-                   loop.close()
-               except Exception:
-                   pass
+                # closing PyShark
+                try:
+                    capture.close()
+                except Exception:
+                    pass
+                
+                # killing the entire python script at OS level
+                # 0 = exit without errors
+                os._exit(0)
