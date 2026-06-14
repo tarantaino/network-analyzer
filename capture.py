@@ -51,20 +51,24 @@ class Capture:
             traceback.print_exc()
         finally:
             if capture:
+               print("\n Killing subprocesses and cleaning memory...")
                try: 
                 capture.close()
                except Exception:
                    pass
                
-               #Since we're using Python 3.14 on Windows, we now force the GC to destroy the objects instantly
-               #while the asynchornous loop is active and configured
-               del capture
+               #we recover all pending asynchronous tasks
+               pending_tasks = asyncio.all_tasks(loop=loop)
 
-               #we give the loop 200 ms to elaborate last signals to close I/O pipelines
-               #sent by TShark/Dumpcap
-               try:
-                   loop.run_until_complete(asyncio.sleep(0.2))
-               except Exception:
+               #we explicity kill them
+               for task in pending_tasks:
+                   task.cancel()
+                
+               #♫we try runnning the loop again to dispose all of the deleting procedures
+               if pending_tasks:
+                 try:
+                   loop.run_until_complete(asyncio.gather(*pending_tasks, return_exceptions=True))
+                 except Exception:
                    pass
                
                #now we close the loop without pending tasks
