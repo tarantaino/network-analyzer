@@ -1,41 +1,46 @@
-import pyshark
-import asyncio #manage the asynchronicity
 #main and useful library for capturing net packets
 #project will be developed in classes
-from analyzers.tcp_tracker import TCPTracker
-import traceback
+import pyshark
+import asyncio #manage the asynchronicity
+import traceback #for managing errors
+from analyzers.tcp_tracker import TCPTracker #class imported from the tcp_tracker.py
 
 class Capture:
     def __init__(self, pcap_path): #define a class in which function will be passed the pcap file path
         self.pcap_path = pcap_path
+        self.interface = interface
 
-    def pcap_process(self, pack_l = 10): #function that opens the pcap and read the first 10 packets, for test purpose
-        #forcing the Event Loop in order for PyShark to not crash
+    #function that opens the pcap and read 100 packets
+    #forcing the Event Loop in order for PyShark to not crash
+    def process_traffic(self, pack_l = 100):
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
-        print(f"Analyzing {self.pcap_path}...\n")
 
         tracker = TCPTracker()
-        try:
-            capture = pyshark.FileCapture(self.pcap_path, keep_packets=False) #FileCapture function in pyshark, reads the pcap
+        capture = None
+                
+        try: #dynamic selection
 
-            pack_c = 0
-            for packet in capture:
-                if pack_c >= pack_l:
-                    break
+            if self.pcap_path:
+                print(f"Starting static analysis of {self.pcap_path}...\n")
+                capture = pyshark.FileCapture(self.pcap_path, keep_packets=False) #FileCapture function in pyshark, reads the pcap
+            elif self.interface:
+                print(f"Starting LIVE SNIFFING on interface {self.interface}...\n")
+            else:
+                print("Errore: no target specified (neither file nor interface).")
+                return
 
-                print(f"[DEBUG] Frame {pack_c}: Principal Protocol -> {packet.highest_layer}")
+            pack_c = 0  #same loop as before
+            for packet in capture.sniff_continously(pack_c = pack_l):
                 tracker.track_pack(packet)
-
                 pack_c += 1
 
-            capture.close()
-            print("\nBasic analysis completed.")
-            print(f"Unique TCP sessions detected: {len(tracker.sessions)}")
+            
+            print("\nCapture completed.")
+            print(f"Unique TCP sessions detected in memory: {len(tracker.sessions)}")
 
             tracker.exp_csv("tcp_report.csv")
         
@@ -44,3 +49,6 @@ class Capture:
         except Exception as e:
             print(f"Unexpected error: {type(e).__name__}")
             traceback.print_exc()
+        finally:
+            if capture:
+                capture.close()
