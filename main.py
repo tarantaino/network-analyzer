@@ -9,8 +9,8 @@ def main():
 
     args = parser.parse_args()
     
-    start = Capture(args.file)
-    start.pcap_process()
+    start = Capture(interface="Wi-Fi")
+    start.pcap_process(pack_l=100)
 
 if __name__ == "__main__":
     main()

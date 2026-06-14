@@ -29,6 +29,7 @@ class Capture:
                 capture = pyshark.FileCapture(self.pcap_path, keep_packets=False) #FileCapture function in pyshark, reads the pcap
             elif self.interface:
                 print(f"Starting LIVE SNIFFING on interface {self.interface}...\n")
+                capture = pyshark.LiveCapture(interface=self.interface) #livecapture bonds with Windows' net card
             else:
                 print("Errore: no target specified (neither file nor interface).")
                 return
