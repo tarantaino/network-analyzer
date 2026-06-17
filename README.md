@@ -1,5 +1,7 @@
-# network-analyzer
-*Network Analyzer*
+# Network-Analyzer
+
+![Python](https://img.shields.io/badge/python-%230db7ed.svg?style=for-the-badge&logo=python&logoColor=purple)
+
 
 Starting a new project for training purposes and to put to work some of the knowledge I obtained during my studies.
 Project is currenly be developed in Python 3.14 on Windows, exploiting the PyShark library, which cause some troubles in managing Windows' pipelines.
