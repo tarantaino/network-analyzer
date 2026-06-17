@@ -10,9 +10,8 @@ and practical application of network security concepts.
 - Basic traffic analysis exported to CSV format
 
 ## Roadma
-- TLS handshake inspection
-- JA3/JA4 client fingerprinting for threat identification
-- Extended protocol support
+- [ ] TLS handshake inspection
+- [ ] JA3/JA4 client fingerprinting for threat identification
 
 ## Tech Stack
 - Python 3.13
