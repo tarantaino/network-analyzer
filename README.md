@@ -1,6 +1,6 @@
 # Networ Traffic Analyzer
 
-![Python](https://img.shields.io/badge/python-%230db7ed.svg?style=for-the-badge&logo=python&logoColor=purple)
+![Python](https://img.shields.io/badge/Python-%233776AB.svg?style=for-the-badge&logo=python&logoColor=FFE873)
 
 A Python-based network traffic analyzer built for learning purposes 
 and practical application of network security concepts.
