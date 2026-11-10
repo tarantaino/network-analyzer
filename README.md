@@ -29,3 +29,4 @@ python main.py
 PyShark on Windows can be unstable due to pipeline management 
 issues with TShark. If you encounter errors, running via WSL 
 is a more stable alternative.
+This project was built with the help of AI assistants.
