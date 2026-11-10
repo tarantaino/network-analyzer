@@ -8,6 +8,9 @@ env/
 __pycache__/
 *.pyc
 *.pyo
+*.pcap
+*.pcapng
+tcv_report.csv
 
 # Configurazioni di VS Code e file di sistema
 .vscode/
